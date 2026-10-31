@@ -1,0 +1,6 @@
+# Ignore Python compiled bytecode caching folders
+__pycache__/
+*.pyc
+
+# Ignore runtime diagnostic engine logs
+*.log
