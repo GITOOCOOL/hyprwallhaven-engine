@@ -57,12 +57,14 @@ sudo pacman -S python-gobject gtk3 awww feh notification-daemon
 To launch the wallpaper manager instantly using your Lua-based configuration syntax, open your main configuration script (usually `~/.config/hypr/hyprland.lua`) and append these instructions:
 
 ```lua
--- Auto-start the animated rendering background worker daemon on startup
-hl.exec_once("awww-daemon")
 
--- Toggle Hyprwall Online Gallery Mode (Super + W)
-hl.bind("SUPER", "W", "exec", "hyprwall online")
-
--- Toggle Hyprwall Local Storage Gallery Mode (Super + Alt + W)
-hl.bind("SUPER_ALT", "W", "exec", "hyprwall local")
-```
+hl.bind(
+	"SUPER + W",
+	hl.dsp.exec_cmd("~/.local/bin/hyprwall online"),
+	{ description = "Open Wallhaven Interactive Menu Browser" }
+)
+hl.bind(
+	"SUPER + SHIFT + W",
+	hl.dsp.exec_cmd("~/.local/bin/hyprwall local"),
+	{ description = "Rotate and Apply a Random Hot Wallpaper" }
+)
