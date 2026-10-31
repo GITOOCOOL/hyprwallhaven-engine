@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 
-# Define source and destination paths
-SOURCE_DIR="$HOME/.config/hyprwall"
+# Define updated repository and destination paths
+SOURCE_DIR="$HOME/.config/hyprwallhaven-engine"
 BIN_DIR="$HOME/.local/bin"
 TARGET_BIN="$BIN_DIR/hyprwall"
 
 echo "=================================================="
-echo "Installing Hyprwall & Checking System Dependencies..."
+echo "Installing Hyprwallhaven-Engine Modules..."
 echo "=================================================="
 
 # 1. Validate System Core Components
-echo "🔍 Interrogating runtime dependencies..."
-DEPENDENCIES=(awww hyprland lua feh notification-daemon socat)
+echo "🔍 Interrogating system runtime dependencies..."
+# FIXED: Swapped notification-daemon out for your active swaync application
+DEPENDENCIES=(awww hyprland lua feh swaync socat)
 MISSING_DEPS=0
 
 for pkg in "${DEPENDENCIES[@]}"; do
@@ -24,7 +25,7 @@ for pkg in "${DEPENDENCIES[@]}"; do
 done
 
 if [ "$MISSING_DEPS" -gt 0 ]; then
-  echo "⚠️  Warning: $MISSING_DEPS core packages are missing. Install them via your package manager."
+  echo "⚠️  Warning: $MISSING_DEPS core packages are missing. Install them via pacman."
 fi
 
 # 2. Build Cache Paths and Verify config.lua Directory Configurations
@@ -48,6 +49,7 @@ rm -f "$BIN_DIR/hyprwall.py"
 # 4. Source Executable Permission Handling
 if [ -f "$SOURCE_DIR/hyprwall.py" ]; then
   chmod +x "$SOURCE_DIR/hyprwall.py"
+  echo "  ✔ Marked master source script workspace as executable."
 else
   echo "❌ Error: Primary engine wrapper missing at $SOURCE_DIR/hyprwall.py"
   exit 1
@@ -68,11 +70,15 @@ elif [ -n "$BASH_VERSION" ]; then
   hash -r 2>/dev/null
 fi
 
-# ... (Previous installation code steps remain unchanged) ...
-
 echo "=================================================="
 echo "✔ Setup complete! Launch globally using: hyprwall"
 echo "=================================================="
 echo ""
-echo "👉 To integrate Hyprwall into your system workspaces,"
-echo "check README file in the repo"
+echo "👉 To integrate Hyprwall into your Lua-based desktop,"
+echo "   add these lines to your ~/.config/hypr/hyprland.lua:"
+echo ""
+echo "   hl.exec_once(\"awww-daemon\")"
+echo "   hl.bind(\"SUPER\", \"W\", \"exec\", \"hyprwall online\")"
+echo "   hl.bind(\"SUPER_ALT\", \"W\", \"exec\", \"hyprwall local\")"
+echo ""
+echo "=================================================="
