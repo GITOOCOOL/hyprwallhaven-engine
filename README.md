@@ -52,6 +52,17 @@ Ensure these packages are installed on your Arch Linux system:
 ```bash
 sudo pacman -S python-gobject gtk3 awww feh notification-daemon
 ```
+## 🔗 Hyprland Lua Keybind Integration
 
----
-*サイト & コード © wallhaven.cc integration. Created with predictability and minimal performance overhead.*
+To launch the wallpaper manager instantly using your Lua-based configuration syntax, open your main configuration script (usually `~/.config/hypr/hyprland.lua`) and append these instructions:
+
+```lua
+-- Auto-start the animated rendering background worker daemon on startup
+hl.exec_once("awww-daemon")
+
+-- Toggle Hyprwall Online Gallery Mode (Super + W)
+hl.bind("SUPER", "W", "exec", "hyprwall online")
+
+-- Toggle Hyprwall Local Storage Gallery Mode (Super + Alt + W)
+hl.bind("SUPER_ALT", "W", "exec", "hyprwall local")
+```
