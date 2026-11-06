@@ -5,7 +5,7 @@ import subprocess
 def load_lua_config():
     path = os.path.expanduser("~/.config/hyprwall/config.lua")
     defaults = {
-        "api_uri": "https://wallhaven.cc",
+        "api_uri": "https://wallhaven.cc/api/v1/search",
         "wall_dir": os.path.expanduser("~/Pictures/Wallpapers"),
         "cache_dir": os.path.expanduser("~/.cache/hyprwall"),
         "monitors": ["eDP-1", "HDMI-A-1"],

@@ -4,3 +4,9 @@ __pycache__/
 
 # Ignore runtime diagnostic engine logs
 *.log
+
+.env
+
+# local secrets and per-user state
+keys.env
+filters.json

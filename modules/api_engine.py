@@ -20,7 +20,7 @@ async def download_worker(url, dest, cancel_token=None):
         print(f"Download worker failure on {url}: {e}")
         return False
 
-async def fetch_wallpapers(config, current_page, search_mode, search_term):
+async def fetch_wallpapers(config, current_page, search_mode, search_term, limit=6, download_thumbs=True):
     filter_str = f"categories={config['categories']}&purity={config['purity']}&sorting={config['sorting']}&topRange={config['top_range']}&{config['resolution_filter']}&{config['ratio_filter']}&page={current_page}"
     if config['api_key']:
         filter_str += f"&apikey={config['api_key']}"
@@ -45,7 +45,7 @@ async def fetch_wallpapers(config, current_page, search_mode, search_term):
         last_page = meta.get('last_page', 1)
         total_results = meta.get('total', meta.get('total_results', len(res_data['data'])))
 
-        items = res_data['data'][0:6]
+        items = res_data["data"][0:limit]
         wallpapers = []
         thumb_dir = f"{config['cache_dir']}/online_thumbs"
         os.makedirs(thumb_dir, exist_ok=True)
@@ -70,10 +70,12 @@ async def fetch_wallpapers(config, current_page, search_mode, search_term):
                 "local_path": target_thumb, 
                 "full_cache_path": target_full, 
                 "full_url": full_path,
+                "thumb_url": thumb_path,
                 "has_full_res": False,
                 "meta": meta_payload
             })
-            thumb_tasks.append(download_worker(thumb_path, target_thumb))
+            if download_thumbs and not os.path.exists(target_thumb):
+                thumb_tasks.append(download_worker(thumb_path, target_thumb))
             
         await asyncio.gather(*thumb_tasks)
         return wallpapers, last_page, total_results
@@ -95,7 +97,7 @@ async def preload_full_res_background(wp, cancel_token):
 
 def inject_image_metadata(file_path, meta_dict):
     try:
-        meta_path = str(file_path) + ".meta"
+        meta_path = '.' + str(file_path) + ".meta"
         with open(meta_path, "w") as f:
             json.dump(meta_dict, f, indent=4)
     except Exception as e:

@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 import os
 import sys
@@ -27,7 +26,7 @@ def backfill_existing_metadata():
             continue
             
         full_path = os.path.join(wall_dir, file)
-        meta_path = full_path + ".meta"
+        meta_path = os.path.join(wall_dir,f".{file}.meta")
         
         # Skip if companion layout file is already cached locally
         if os.path.exists(meta_path):
@@ -67,7 +66,7 @@ def backfill_existing_metadata():
                     "tags": [wp_id, item.get("category", "general"), item.get("purity", "sfw")] + api_tags
                 }
                 
-                inject_image_metadata(full_path, meta_payload)
+                inject_image_metadata(meta_path, meta_payload)
                 print("SUCCESS")
             else:
                 print("FAILED (Empty return)")

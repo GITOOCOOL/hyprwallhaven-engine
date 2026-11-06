@@ -1,8 +1,6 @@
-
 import os
 import subprocess
 import urllib.request
-import shutil
 
 def confirm_and_apply_wallpaper(window, wp):
     source_url = wp['full_url']
@@ -36,31 +34,19 @@ def confirm_and_apply_wallpaper(window, wp):
         except:
             pass
 
-    base_id = wp.get('id', 'wallpaper')
-    filename = f"wallhaven-{base_id}{ext}"
+    if window.run_mode == "local":
+        filename = os.path.basename(wp['local_path'])
+    else:
+        base_id = wp.get('id', 'wallpaper')
+        filename = f"wallhaven-{base_id}{ext}"
     target_dest = os.path.abspath(f"{window.config['wall_dir']}/{filename}")
     
     if os.path.exists(cache_file):
         os.makedirs(window.config['wall_dir'], exist_ok=True)
         subprocess.run(["cp", cache_file, target_dest])
 
-    # Core Routing Engine Execution
-    if shutil.which("awww-daemon") or shutil.which("awww"):
-        subprocess.run("awww-daemon < /dev/null > /dev/null 2>&1 &", shell=True)
-        subprocess.run(f"awww img '{target_dest}' --transition-type wave", shell=True)
-        
-    elif shutil.which("feh"):
-        subprocess.run(["pkill", "hyprpaper"])
-        subprocess.run(["feh", "--bg-fill", target_dest])
-        
-    else:
-        subprocess.run(["pkill", "hyprpaper"])
-        conf_path = os.path.expanduser("~/.cache/hyprwall/hyprpaper_exec.conf")
-        with open(conf_path, "w") as conf:
-            conf.write(f"preload = {target_dest}\n")
-            conf.write(f"wallpaper = eDP-1,{target_dest}\n")
-            conf.write("splash = false\n")
-        subprocess.Popen(["hyprpaper", "-c", conf_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    from cli import paint
+    paint(target_dest)
 
     # Desktop notification dispatch
     subprocess.Popen(["notify-send", "Wallpaper Applied", filename])
