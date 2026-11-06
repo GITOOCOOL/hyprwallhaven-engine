@@ -99,50 +99,6 @@ def bing(cfg, query, page):
     return items, 1, len(items)
 
 
-# ---------------------------------------------------------- Konachan (no key)
-RATING = {"s": "sfw", "q": "sketchy", "e": "nsfw"}
-
-
-def konachan(cfg, query, page):
-    mask = cfg.get("purity", "100").ljust(3, "0")
-    allowed = [r for r, bit in (("s", 0), ("q", 1), ("e", 2)) if mask[bit] == "1"] or ["s"]
-    # konachan.net only serves safe posts; the .com mirror is needed for anything else
-    host = "konachan.net" if allowed == ["s"] else "konachan.com"
-    tags = query.split()[:2]  # anonymous users get 6 tags in total
-    if len(allowed) == 1:
-        tags.append(f"rating:{allowed[0]}")
-    elif len(allowed) == 2:
-        tags.append(f"-rating:{({'s', 'q', 'e'} - set(allowed)).pop()}")
-    w = min_width(cfg.get("resolution_filter", "").replace("atleast=", ""))
-    if w:
-        tags.append(f"width:{w}..")
-    tags.append("order:score")
-    qs = urllib.parse.urlencode({"limit": PER_PAGE, "page": page, "tags": " ".join(tags)})
-    posts, _ = get_json(f"https://{host}/post.json?{qs}")
-    items = []
-    for p in posts:
-        if p.get("rating") not in allowed:
-            continue  # belt and braces: never show a rating that wasn't asked for
-        rating = RATING[p["rating"]]
-        items.append({"id": str(p["id"]), "thumb": p.get("sample_url") or p.get("preview_url"),
-                      "preview": p.get("preview_url", ""),
-                      "url": p.get("file_url") or p.get("jpeg_url"), "purity": rating, "category": "anime",
-                      "title": " ".join(p.get("tags", "").split()[:4]).replace("_", " ")})
-    last = page + 1 if len(posts) >= PER_PAGE else page
-    if not posts and query and page == 1:
-        # Konachan matches exact tags only ("landscape" works, "mountain" doesn't): suggest some
-        word = query.split()[0]
-        try:
-            tags_found, _ = get_json(f"https://{host}/tag.json?" + urllib.parse.urlencode(
-                {"name": word, "order": "count", "limit": 6}))
-            hints = [t["name"] for t in tags_found if t.get("count", 0) > 20][:5]
-        except Exception:
-            hints = []
-        hints = hints or ["landscape", "scenic", "sky", "night", "city"]
-        raise NoResults("Konachan searches by tag. Try: " + ", ".join(h.replace("_", " ") for h in hints))
-    return items, last, None
-
-
 # ---------------------------------------------------------- Unsplash (key)
 def unsplash(cfg, query, page):
     k = key("UNSPLASH_ACCESS_KEY")
@@ -198,7 +154,7 @@ def pexels(cfg, query, page):
     return items, last, total
 
 
-SOURCES = {"bing": bing, "konachan": konachan, "unsplash": unsplash, "pexels": pexels}
+SOURCES = {"bing": bing, "unsplash": unsplash, "pexels": pexels}
 
 
 def track(source, url):

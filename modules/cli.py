@@ -1,7 +1,7 @@
 """Headless hyprwall commands used by the Quickshell wallpaper picker.
 
   hyprwall search [query] [--page N] [--source S] [filters]
-      -> JSON page of results; S = wallhaven (default) | unsplash | pexels | konachan | bing
+      -> JSON page of results; S = wallhaven (default) | unsplash | pexels | bing
   hyprwall list [query] [--purity 100]           -> JSON list of local wallpapers
   hyprwall meta                                  -> look up purity/category of local wallhaven-* files
   hyprwall thumbs                                -> build 1600px preview JPEGs for local files (cache)
@@ -83,7 +83,7 @@ def save_meta(cfg, meta):
 
 
 def wall_id(filename):
-    """Key into meta.json: wallhaven-abc123.png -> abc123, konachan-42.jpg -> konachan-42,
+    """Key into meta.json: wallhaven-abc123.png -> abc123, bing-42.jpg -> bing-42,
     None for files that came from nowhere we know."""
     base = os.path.splitext(filename)[0]
     if base.startswith("wallhaven-"):
